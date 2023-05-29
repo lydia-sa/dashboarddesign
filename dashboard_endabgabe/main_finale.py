@@ -52,97 +52,19 @@ def line_diagram(main_filter, dataset):
     line_fig.update_yaxes(showline=True, linewidth=1, linecolor='black')
     return line_fig
 
-def gauge_chart_northamerica(main_filter, dataset):
-    df_gauge = dataset[[main_filter, 'North America', 'Global']]
+def gauge_chart(main_filter, dataset, region):
+    df_gauge = dataset[[main_filter, region, 'Global']]
 
     # calculate the market share
-    marktanteil_NA_Sales = round(df_gauge['North America'].sum() / df_gauge['Global'].sum() * 100, 1)
+    marktanteil_sales = round(df_gauge[region].sum() / df_gauge['Global'].sum() * 100, 1)
 
     # Gauge Chart
     fig_gaug = go.Figure(go.Indicator(
         domain={'x': [0, 1], 'y': [0, 1]},
-        value=marktanteil_NA_Sales,
+        value=marktanteil_sales,
         number={'suffix': '%', 'font': {'size': 15}},
         mode='gauge+number',
-        title={'text': 'North America', 'font': {'size': 13}},
-        gauge={'axis': {'range': [None, 100]},
-               'bar': {'color': '#378a68'},
-               'steps': [
-                   {'range': [0, 100], 'color': '#b3d7de'},
-               ],
-               }
-    ))
-    fig_gaug.update_layout(
-        margin=dict(l=55, r=55, t=0, b=0),
-        height=140
-    )
-    return fig_gaug
-
-def gauge_chart_europe(main_filter, dataset):
-    df_gauge = dataset[[main_filter,  'Europe', 'Global']]
-
-    # calculate the market share
-    marktanteil_NA_Sales = round(df_gauge['Europe'].sum() / df_gauge['Global'].sum() * 100, 1)
-
-    # Gauge Chart
-    fig_gaug = go.Figure(go.Indicator(
-        domain={'x': [0, 1], 'y': [0, 1]},
-        value=marktanteil_NA_Sales,
-        number={'suffix': '%', 'font': {'size': 15}},
-        mode='gauge+number',
-        title={'text': 'Europe', 'font': {'size': 13}},
-        gauge={'axis': {'range': [None, 100]},
-               'bar': {'color': '#378a68'},
-               'steps': [
-                   {'range': [0, 100], 'color': '#b3d7de'},
-               ],
-               }
-    ))
-    fig_gaug.update_layout(
-        margin=dict(l=55, r=55, t=0, b=0),
-        height=140
-    )
-    return fig_gaug
-
-def gauge_chart_japan(main_filter, dataset):
-    df_gauge = dataset[[main_filter,  'Japan', 'Global']]
-
-    # calculate the market share
-    marktanteil_NA_Sales = round(df_gauge['Japan'].sum() / df_gauge['Global'].sum() * 100, 1)
-
-    # Gauge Chart
-    fig_gaug = go.Figure(go.Indicator(
-        domain={'x': [0, 1], 'y': [0, 1]},
-        value=marktanteil_NA_Sales,
-        number={'suffix': '%', 'font': {'size': 15}},
-        mode='gauge+number',
-        title={'text': 'Japan', 'font': {'size': 13}},
-        gauge={'axis': {'range': [None, 100]},
-               'bar': {'color': '#378a68'},
-               'steps': [
-                   {'range': [0, 100], 'color': '#b3d7de'},
-               ],
-               }
-    ))
-    fig_gaug.update_layout(
-        margin=dict(l=55, r=55, t=0, b=0),
-        height=140
-    )
-    return fig_gaug
-
-def gauge_chart_others(main_filter, dataset):
-    df_gauge = dataset[[main_filter, 'Others', 'Global']]
-
-    # calculate the market share
-    marktanteil_NA_Sales = round(df_gauge['Others'].sum() / df_gauge['Global'].sum() * 100, 1)
-
-    # Gauge Chart
-    fig_gaug = go.Figure(go.Indicator(
-        domain={'x': [0, 1], 'y': [0, 1]},
-        value=marktanteil_NA_Sales,
-        number={'suffix': '%', 'font': {'size': 15}},
-        mode='gauge+number',
-        title={'text': 'Others', 'font': {'size': 13}},
+        title={'text': region, 'font': {'size': 13}},
         gauge={'axis': {'range': [None, 100]},
                'bar': {'color': '#378a68'},
                'steps': [
@@ -509,10 +431,10 @@ def update_charts(main_filter, #sales_filter,
     return dff.to_dict('records'),\
            stacked_bar_chart_plotly(main_filter,dff),\
            line_diagram(main_filter,dff), \
-           gauge_chart_northamerica(main_filter,dff), \
-           gauge_chart_europe(main_filter,dff), \
-           gauge_chart_japan(main_filter,dff),\
-           gauge_chart_others(main_filter,dff)
+           gauge_chart(main_filter, dff, 'North America'), \
+           gauge_chart(main_filter, dff, 'Europe'), \
+           gauge_chart(main_filter, dff, 'Japan'),\
+           gauge_chart(main_filter, dff, 'Others')
 
 
 
