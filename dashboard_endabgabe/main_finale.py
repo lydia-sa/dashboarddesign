@@ -383,8 +383,7 @@ def update_console_options(platform, company, publisher, genre, year, #sales_fil
 
 
 
-# now the Callback for the List on the left upper side
-
+# now the Callback for the diagramm updates
 @app.callback(
     [Output('datatable_1', 'data'),
     Output('stable_diagram', 'figure'),
