@@ -300,7 +300,7 @@ def update_platform_options(company, publisher, genre, console, year, #sales_fil
     Input('dd_genre', 'value'),
     Input('dd_console', 'value'),
     Input('slider_year', 'value'),
-    Input('sales_filter', 'value'),
+    #Input('sales_filter', 'value'),
 )
 def update_company_options(platform, publisher, genre, console, year, #sales_filter
                            ):
