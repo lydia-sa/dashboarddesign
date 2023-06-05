@@ -25,7 +25,7 @@ app.layout = html.Div([html.Div([html.H1("Dashboard 4")], className="header"), h
                       dbc.Row([dbc.Col([dcc.Graph(id="graph_1")], width=6),
                                dbc.Col([dcc.Graph(id="graph_2")], width=6)])], className="tab_content"),]),
                  dcc.Tab(label='Tab Two', id="tab_2_graphs", children=[html.Div([
-                      dbc.Row([dbc.Col([dcc.Slider(1, 10, 1, value= 3, id= "slider_cluster")])]),
+                      dbc.Row([dbc.Col([dcc.Slider(1, 10, 1, value= 3, id= "slider_cluster")], className='mt-4', width = {'size': 6,'offset':3})]),
                      dbc.Row([dbc.Col([dcc.Graph(id="graph_3")], width=8),
                               dbc.Col([dcc.Graph(id="graph_4")], width=4)])], className="tab_content")]),])], className="content")])
 
