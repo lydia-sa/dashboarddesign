@@ -49,9 +49,18 @@ def stacked_bar_chart_plotly(main_filter, dataset):
 def line_diagram(main_filter, dataset):
     df_l = dataset.groupby(['Year', main_filter], as_index=False)['Global'].sum()
 
-    line_fig = px.line(df_l, x='Year', y='Global', log_x=True, color=main_filter, color_discrete_sequence= ['#006276', '#015666', '#1a889d', '#4da3b3', '#80bdc9', '#b3d7de', '#cce5e9',  '#2b6b51', '#317a5c','#378a68','#50a381', '#77b89d', '#9eccb9' ])
+    line_fig = px.line(df_l, x='Year', y='Global', color=main_filter, color_discrete_sequence= ['#006276', '#015666', '#1a889d', '#4da3b3', '#80bdc9', '#b3d7de', '#cce5e9',  '#2b6b51', '#317a5c','#378a68','#50a381', '#77b89d', '#9eccb9' ])
     line_fig.update_layout(plot_bgcolor='white',paper_bgcolor='white')
-    line_fig.update_xaxes( showline=True, linewidth=1, linecolor='black')
+    line_fig.update_xaxes( showline=True, linewidth=1, linecolor='black', range=[1980, 2020])
+    if len(df_l['Year'].unique()) == 1:
+        star_year = df_l['Year'].unique()[0]
+        line_fig.add_annotation(
+            x=star_year,
+            y=df_l[df_l['Year'] == star_year]['Global'].values[0],
+            text='*',
+            showarrow=False,
+            font=dict(size=15),
+        )
     line_fig.update_yaxes(showline=True, linewidth=1, linecolor='black')
     return line_fig
 
