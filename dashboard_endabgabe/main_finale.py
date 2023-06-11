@@ -28,10 +28,13 @@ def stacked_bar_chart_plotly(main_filter, dataset):
     # dropout Global Sales
     df_bar_grouped = df_bar_grouped [[main_filter, 'North America', 'Europe', 'Japan', 'Others']]
 
-    fig = px.bar(df_bar_grouped, x=main_filter, y=['North America', 'Europe', 'Japan', 'Others'], color_discrete_sequence= ['#1a889d', '#4da3b3', '#80bdc9', '#b3d7de'])
+
+
+    fig = px.bar(df_bar_grouped, x=main_filter, y=['North America', 'Europe', 'Japan', 'Others'], color_discrete_sequence= ['#006276','#1a889d','#80bdc9','#b3d7de'])
     fig.update_layout(plot_bgcolor='white',paper_bgcolor='white')
     fig.update_xaxes(showline=True, linewidth=1, linecolor='black', title = None)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='black', title = 'number of sales (in million)')
+
 
     # legend within the graph (not beside)
     fig.update_layout(legend=dict(
@@ -46,17 +49,22 @@ def stacked_bar_chart_plotly(main_filter, dataset):
 def line_diagram(main_filter, dataset):
     df_l = dataset.groupby(['Year', main_filter], as_index=False)['Global'].sum()
 
-    line_fig = px.line(df_l, x='Year', y='Global', color=main_filter, color_discrete_sequence= ['#015666', '#1a889d', '#4da3b3', '#80bdc9', '#b3d7de', '#cce5e9',  '#2b6b51', '#317a5c','#378a68','#50a381', '#77b89d', '#9eccb9' ])
+    line_fig = px.line(df_l, x='Year', y='Global', log_x=True, color=main_filter, color_discrete_sequence= ['#006276', '#015666', '#1a889d', '#4da3b3', '#80bdc9', '#b3d7de', '#cce5e9',  '#2b6b51', '#317a5c','#378a68','#50a381', '#77b89d', '#9eccb9' ])
     line_fig.update_layout(plot_bgcolor='white',paper_bgcolor='white')
     line_fig.update_xaxes( showline=True, linewidth=1, linecolor='black')
     line_fig.update_yaxes(showline=True, linewidth=1, linecolor='black')
     return line_fig
 
-def gauge_chart(main_filter, dataset, region):
-    df_gauge = dataset[[main_filter, region, 'Global']]
+def calculate_global_share(main_filter, dataset, data_time):
+    df_global = dataset[[main_filter, "Global"]]
+    global_share = round(df_global["Global"].sum() / data_time["Global"].sum() * 100, 1)
+    return f'Global: {global_share}%'
+
+def gauge_chart(main_filter, dataset, region, data_time):
+    df_gauge = dataset[[main_filter, region]]
 
     # calculate the market share
-    marktanteil_sales = round(df_gauge[region].sum() / df_gauge['Global'].sum() * 100, 1)
+    marktanteil_sales = round(df_gauge[region].sum() / data_time[region].sum() * 100, 1)
 
     # Gauge Chart
     fig_gaug = go.Figure(go.Indicator(
@@ -79,7 +87,7 @@ def gauge_chart(main_filter, dataset, region):
     return fig_gaug
 
 
-# IMPORT DATA
+# IMPORT & CLEANING DATA
 #-------------------------------------------------------------------
 df = pd.read_csv('Dataset_videogames sales.csv', sep=';')
 
@@ -92,7 +100,7 @@ df.columns = df.columns.str.replace('Other_Sales', 'Others')
 df.columns = df.columns.str.replace('type of console', 'Console')
 df.columns = df.columns.str.replace('Platform Company', 'Company')
 
-#change drop NA
+#change & drop NA
 df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
 df.dropna(subset=['Year'], inplace=True)
 df['Year'] = df['Year'].astype(int)
@@ -126,7 +134,9 @@ app.layout = dbc.Container([
 
         dbc.Col(dcc.Dropdown(id='dd_platform',
                              options=sorted([{'label': i, 'value': i} for i in df['Platform'].unique()], key = lambda x: x['label']),
-                             placeholder='select a platform',),
+                             placeholder='select a platform',
+                             value= [],
+                             multi= True),
                 width={'size':2},
                 style={'font-size': '14px'}
                 ),
@@ -134,6 +144,8 @@ app.layout = dbc.Container([
         dbc.Col(dcc.Dropdown(id='dd_company',
                              options=sorted([{'label': i, 'value': i} for i in df['Company'].unique()], key = lambda x: x['label']),
                              placeholder='select a company',
+                             value= [],
+                             multi= True
                              ),
                 width={'size':2},
                 style={'font-size': '14px'}
@@ -142,6 +154,8 @@ app.layout = dbc.Container([
         dbc.Col(dcc.Dropdown(id='dd_publisher',
                              options=sorted([{'label': i, 'value': i} for i in df['Publisher'].unique()], key = lambda x: x['label']),
                              placeholder='select a publisher',
+                             value= [],
+                             multi= True
                              ),
                 width={'size': 2},
                 style = {'font-size': '14px'}
@@ -150,6 +164,8 @@ app.layout = dbc.Container([
         dbc.Col(dcc.Dropdown(id='dd_genre',
                              options=sorted([{'label': i, 'value': i} for i in df['Genre'].unique()], key = lambda x: x['label']),
                              placeholder='select a genre',
+                             value= [],
+                             multi= True
                              ),
                 width={'size': 2},
                 style={'font-size': '14px'}
@@ -158,6 +174,8 @@ app.layout = dbc.Container([
         dbc.Col(dcc.Dropdown(id='dd_console',
                              options=sorted([{'label': i, 'value': i} for i in df['Console'].unique()], key = lambda x: x['label']),
                              placeholder='select a console',
+                             value= [],
+                             multi=True
                              ),
                 width={'size': 2},
                 style={'font-size': '14px'}
@@ -177,11 +195,11 @@ app.layout = dbc.Container([
                                     2010: '2010',
                                     2020: '2020'},
 
-                            value=[1980, 2020],
+                            value=[df['Year'].min(), df['Year'].max()],
                             #dots= True,
-                            updatemode = 'mouseup',  # 'mouseup', 'drag' - update value method
+                            updatemode = 'mouseup',  # 'mouseup', 'drag' - update value methode
                             ),
-        className='mt-2',
+        className='mt-1',
         width = {'size': 4,'offset':4})),
 
     dbc.Row([
@@ -214,10 +232,10 @@ app.layout = dbc.Container([
                 style_as_list_view=True,
                 style_data_conditional=[
                     {'if': {'row_index': 'odd'},'backgroundColor': '#F9FCFD'}],
+                #style_data={'fontFamily': 'Arial, sans-serif', 'fontSize': '75%'}
     ),
 
             ),
-            #dbc.Row(html.H1('liste2'))
 
             ],
             width={'size': 3},
@@ -234,25 +252,18 @@ app.layout = dbc.Container([
             ),
             style={'margin-left': '150px', 'height': '20px',},
             ),
-            #dbc.Row(dcc.RadioItems(
-              #  id='sales_filter',
-              #  options=[{'label': '0', 'value': 0},
-              #  {'label': '10', 'value': 10}],
-              #  value=10,
-              #  labelStyle = {'margin-left': '20px'},
-              #  inline=True
-            #),
-            #style={'margin-left': '50px'}
-            #),
             dbc.Row(dcc.Graph(id='line_diagram', figure={}),
-                    style={'height': '300px',}
+                    style={'height': '305px',}
                     ),
             ],
             width={'size':7},
         ),
         dbc.Col([
-            dbc.Row(html.H5('Market share by Region',
+            dbc.Row(html.H5('Market Share by Region',
                         className='text-left')),
+            dbc.Row(html.H6(id = 'share_global',
+                            style={'text-align': 'center', 'marigin-top': '5px', 'margin-bottom': '15px'}
+                            )),
             dbc.Row(dcc.Graph(id='gauge_diagram_AM', figure={})),
             dbc.Row(dcc.Graph(id='gauge_diagram_EUR', figure={})),
             dbc.Row(dcc.Graph(id='gauge_diagram_JAP', figure={})),
@@ -269,7 +280,6 @@ app.layout = dbc.Container([
 
 # the following callbacks are only to filter the dropdown menu options,
 # so that the options are depending on the selection of other dropdown filters.
-
 @app.callback(
     Output('dd_platform', 'options'),
     Input('dd_company', 'value'),
@@ -282,10 +292,10 @@ app.layout = dbc.Container([
 def update_platform_options(company, publisher, genre, console, year, #sales_filter
                            ):
 
-    filtered_data = df[df['Console'] == console] if console else df
-    filtered_data = filtered_data[filtered_data['Company'] == company] if company else filtered_data
-    filtered_data = filtered_data[filtered_data['Publisher'] == publisher] if publisher else filtered_data
-    filtered_data = filtered_data[filtered_data['Genre'] == genre] if genre else filtered_data
+    filtered_data = df[df['Console'].isin(console)] if console else df
+    filtered_data = filtered_data[filtered_data['Company'].isin(company)] if company else filtered_data
+    filtered_data = filtered_data[filtered_data['Publisher'].isin(publisher)] if publisher else filtered_data
+    filtered_data = filtered_data[filtered_data['Genre'].isin(genre)] if genre else filtered_data
     min_year, max_year = year
     filtered_data = filtered_data[filtered_data['Year'].between(min_year, max_year)]
     #if sales_filter == 10:
@@ -304,10 +314,10 @@ def update_platform_options(company, publisher, genre, console, year, #sales_fil
 )
 def update_company_options(platform, publisher, genre, console, year, #sales_filter
                            ):
-    filtered_data = df[df['Platform'] == platform] if platform else df
-    filtered_data = filtered_data[filtered_data['Console'] == console] if console else filtered_data
-    filtered_data = filtered_data[filtered_data['Publisher'] == publisher] if publisher else filtered_data
-    filtered_data = filtered_data[filtered_data['Genre'] == genre] if genre else filtered_data
+    filtered_data = df[df['Platform'].isin(platform)] if platform else df
+    filtered_data = filtered_data[filtered_data['Console'].isin(console)] if console else filtered_data
+    filtered_data = filtered_data[filtered_data['Publisher'].isin(publisher)] if publisher else filtered_data
+    filtered_data = filtered_data[filtered_data['Genre'].isin(genre)] if genre else filtered_data
     min_year, max_year = year
     filtered_data = filtered_data[filtered_data['Year'].between(min_year, max_year)]
     #if sales_filter == 10:
@@ -322,18 +332,14 @@ def update_company_options(platform, publisher, genre, console, year, #sales_fil
     Input('dd_genre', 'value'),
     Input('dd_console', 'value'),
     Input('slider_year', 'value'),
-    #Input('sales_filter', 'value'),
 )
-def update_publisher_options(platform, company, genre, console, year, #sales_filter
-                           ):
-    filtered_data = df[df['Platform'] == platform] if platform else df
-    filtered_data = filtered_data[filtered_data['Company'] == company] if company else filtered_data
-    filtered_data = filtered_data[filtered_data['Console'] == console] if console else filtered_data
-    filtered_data = filtered_data[filtered_data['Genre'] == genre] if genre else filtered_data
+def update_publisher_options(platform, company, genre, console, year):
+    filtered_data = df[df['Platform'].isin(platform)] if platform else df
+    filtered_data = filtered_data[filtered_data['Company'].isin(company)] if company else filtered_data
+    filtered_data = filtered_data[filtered_data['Console'].isin(console)] if console else filtered_data
+    filtered_data = filtered_data[filtered_data['Genre'].isin(genre)] if genre else filtered_data
     min_year, max_year = year
     filtered_data = filtered_data[filtered_data['Year'].between(min_year, max_year)]
-    #if sales_filter == 10:
-    #    mach irgendwas
     options = sorted([{'label': i, 'value': i} for i in filtered_data['Publisher'].unique()], key=lambda x: x['label'])
     return options
 
@@ -343,19 +349,15 @@ def update_publisher_options(platform, company, genre, console, year, #sales_fil
     Input('dd_company', 'value'),
     Input('dd_publisher', 'value'),
     Input('dd_console', 'value'),
-    Input('slider_year', 'value'),
-    #Input('sales_filter', 'value'),
-)
-def update_genre_options(platform, company, publisher, console, year, #sales_filter
+    Input('slider_year', 'value'))
+def update_genre_options(platform, company, publisher, console, year,
                            ):
-    filtered_data = df[df['Platform'] == platform] if platform else df
-    filtered_data = filtered_data[filtered_data['Company'] == company] if company else filtered_data
-    filtered_data = filtered_data[filtered_data['Publisher'] == publisher] if publisher else filtered_data
-    filtered_data = filtered_data[filtered_data['Console'] == console] if console else filtered_data
+    filtered_data = df[df['Platform'].isin(platform)] if platform else df
+    filtered_data = filtered_data[filtered_data['Company'].isin(company)] if company else filtered_data
+    filtered_data = filtered_data[filtered_data['Publisher'].isin(publisher)] if publisher else filtered_data
+    filtered_data = filtered_data[filtered_data['Console'].isin(console)] if console else filtered_data
     min_year, max_year = year
     filtered_data = filtered_data[filtered_data['Year'].between(min_year, max_year)]
-    #if sales_filter == 10:
-    #    mach irgendwas
     options = sorted([{'label': i, 'value': i} for i in filtered_data['Genre'].unique()], key=lambda x: x['label'])
     return options
 
@@ -366,35 +368,31 @@ def update_genre_options(platform, company, publisher, console, year, #sales_fil
     Input('dd_publisher', 'value'),
     Input('dd_genre', 'value'),
     Input('slider_year', 'value'),
-    #Input('sales_filter', 'value'),
 )
-def update_console_options(platform, company, publisher, genre, year, #sales_filter
+def update_console_options(platform, company, publisher, genre, year
                            ):
-    filtered_data = df[df['Platform'] == platform] if platform else df
-    filtered_data = filtered_data[filtered_data['Company'] == company] if company else filtered_data
-    filtered_data = filtered_data[filtered_data['Publisher'] == publisher] if publisher else filtered_data
-    filtered_data = filtered_data[filtered_data['Genre'] == genre] if genre else filtered_data
+    filtered_data = df[df['Platform'].isin(platform)] if platform else df
+    filtered_data = filtered_data[filtered_data['Company'].isin(company)] if company else filtered_data
+    filtered_data = filtered_data[filtered_data['Publisher'].isin(publisher)] if publisher else filtered_data
+    filtered_data = filtered_data[filtered_data['Genre'].isin(genre)] if genre else filtered_data
     min_year, max_year = year
     filtered_data = filtered_data[filtered_data['Year'].between(min_year, max_year)]
-    #if sales_filter == 10:
-    #    mach irgendwas
     options = sorted([{'label': i, 'value': i} for i in filtered_data['Console'].unique()], key=lambda x: x['label'])
     return options
 
 
-
-# now the Callback for the diagramm updates
+# now the callback for the diagramm updates
 @app.callback(
     [Output('datatable_1', 'data'),
     Output('stable_diagram', 'figure'),
     Output('line_diagram', 'figure'),
+    Output('share_global', 'children'),
     Output('gauge_diagram_AM', 'figure'),
     Output('gauge_diagram_EUR', 'figure'),
     Output('gauge_diagram_JAP', 'figure'),
-    Output('gauge_diagram_OTH', 'figure')
+    Output('gauge_diagram_OTH', 'figure'),
      ],
     [Input('check_choice', 'value'),
-    #Input('sales_filter', 'value'),
     Input('dd_platform', 'value'),
     Input('dd_genre', 'value'),
     Input('dd_console', 'value'),
@@ -403,42 +401,36 @@ def update_console_options(platform, company, publisher, genre, year, #sales_fil
     Input('slider_year', 'value')
      ],)
 
-def update_charts(main_filter, #sales_filter,
-                  platform, genre, console, company, publisher, year):
+def update_charts(main_filter, platform, genre, console, company, publisher, year):
     min_year, max_year = year
-    dff = df.copy()
-    if platform != None:
-        dff = dff[dff['Platform'] == platform]
-    if genre != None:
-        dff = dff[dff['Genre'] == genre]
-    if console != None:
-        dff = dff[dff['Console'] == console]
-    if company != None:
-        dff = dff[dff['Company'] == company]
-    if publisher != None:
-        dff = dff[dff['Publisher'] == publisher]
+    dfc = df.copy()
+    dft = dfc[dfc['Year'].between(min_year, max_year)]
+    dff = dft
 
-
-    dff = dff[dff['Year'].between(min_year, max_year)]
-
-   # if sales_filter == 10:
-    #    best_sales = dff.groupby(main_filter)['Global'].sum()
-    #    sorted_countries = best_sales.sort_values(ascending=False)
-    #    top_10_countries = sorted_countries.head(10)
-    #    dff = df[df[main_filter].isin(top_10_countries.index)]
+    if platform != []:
+        dff = dff[dff['Platform'].isin(platform)]
+    if genre != []:
+        dff = dff[dff['Genre'].isin(genre)]
+    if console != []:
+        dff = dff[dff['Console'].isin(console)]
+    if company != []:
+        dff = dff[dff['Company'].isin(company)]
+    if publisher != []:
+        dff = dff[dff['Publisher'].isin(publisher)]
 
     return dff.to_dict('records'),\
            stacked_bar_chart_plotly(main_filter,dff),\
-           line_diagram(main_filter,dff), \
-           gauge_chart(main_filter, dff, 'North America'), \
-           gauge_chart(main_filter, dff, 'Europe'), \
-           gauge_chart(main_filter, dff, 'Japan'),\
-           gauge_chart(main_filter, dff, 'Others')
+           line_diagram(main_filter,dff),\
+           calculate_global_share(main_filter, dff, dft),\
+           gauge_chart(main_filter, dff, 'North America', dft), \
+           gauge_chart(main_filter, dff, 'Europe', dft), \
+           gauge_chart(main_filter, dff, 'Japan', dft),\
+           gauge_chart(main_filter, dff, 'Others', dft)
 
 
 
 # RUN THE APP
 #--------------------------------------------------------------------
 if __name__=='__main__':
-    app.run_server(debug=False, port=8000)
+    app.run_server(debug=True, port=8000)
 
