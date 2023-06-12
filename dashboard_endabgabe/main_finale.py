@@ -6,10 +6,12 @@
 # IMPORT LIBRARIES
 #-------------------------------------------------------------------
 import pandas as pd
-from dash import Dash, dcc, html, Input, Output, callback, dash_table
+from dash import Dash, dcc, html, Input, Output, callback, dash_table, State
+from dash.dependencies import Input, Output
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
+import dash
 
 # FUNKTIONEN
 
@@ -94,6 +96,11 @@ def gauge_chart(main_filter, dataset, region, data_time):
         height=140
     )
     return fig_gaug
+
+alert = dbc.Alert('Please choose another period of time to avoid further disappointment!',
+                  color='danger',
+                  duration=5000,
+                  className='text-center')
 
 
 # IMPORT & CLEANING DATA
@@ -210,7 +217,7 @@ app.layout = dbc.Container([
                             ),
         className='mt-1',
         width = {'size': 4,'offset':4})),
-
+    dbc.Row(html.Div(id='wrong_time_alert', children=[])),
     dbc.Row([
         dbc.Col([
             dbc.Row(html.H5('Ranking',
@@ -400,6 +407,7 @@ def update_console_options(platform, company, publisher, genre, year
     Output('gauge_diagram_EUR', 'figure'),
     Output('gauge_diagram_JAP', 'figure'),
     Output('gauge_diagram_OTH', 'figure'),
+    Output('wrong_time_alert', 'children')
      ],
     [Input('check_choice', 'value'),
     Input('dd_platform', 'value'),
@@ -427,14 +435,26 @@ def update_charts(main_filter, platform, genre, console, company, publisher, yea
     if publisher != []:
         dff = dff[dff['Publisher'].isin(publisher)]
 
-    return dff.to_dict('records'),\
-           stacked_bar_chart_plotly(main_filter,dff),\
-           line_diagram(main_filter,dff),\
-           calculate_global_share(main_filter, dff, dft),\
-           gauge_chart(main_filter, dff, 'North America', dft), \
-           gauge_chart(main_filter, dff, 'Europe', dft), \
-           gauge_chart(main_filter, dff, 'Japan', dft),\
-           gauge_chart(main_filter, dff, 'Others', dft)
+    if len(dff)== 0:
+        return (dff.to_dict('records'),\
+               stacked_bar_chart_plotly(main_filter,dff),\
+               line_diagram(main_filter,dff),\
+               calculate_global_share(main_filter, dff, dft),\
+               gauge_chart(main_filter, dff, 'North America', dft), \
+               gauge_chart(main_filter, dff, 'Europe', dft), \
+               gauge_chart(main_filter, dff, 'Japan', dft),\
+               gauge_chart(main_filter, dff, 'Others', dft),
+                alert)
+    else:
+        return (dff.to_dict('records'),\
+               stacked_bar_chart_plotly(main_filter,dff),\
+               line_diagram(main_filter,dff),\
+               calculate_global_share(main_filter, dff, dft),\
+               gauge_chart(main_filter, dff, 'North America', dft), \
+               gauge_chart(main_filter, dff, 'Europe', dft), \
+               gauge_chart(main_filter, dff, 'Japan', dft),\
+               gauge_chart(main_filter, dff, 'Others', dft),\
+               dash.no_update)
 
 
 
