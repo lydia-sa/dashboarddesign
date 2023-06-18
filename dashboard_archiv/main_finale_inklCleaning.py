@@ -29,33 +29,31 @@ def stacked_bar_chart_plotly(main_filter, dataset):
 
     # dropout Global Sales
     df_bar_grouped = df_bar_grouped [[main_filter, 'North America', 'Europe', 'Japan', 'Others']]
-
-
-
     fig = px.bar(df_bar_grouped, x=main_filter, y=['North America', 'Europe', 'Japan', 'Others'], color_discrete_sequence= ['#006276','#1a889d','#80bdc9','#b3d7de'])
-    fig.update_layout(plot_bgcolor='white',paper_bgcolor='white')
+
     fig.update_xaxes(showline=True, linewidth=1, linecolor='black', title = None)
     fig.update_yaxes(showline=True, linewidth=1, linecolor='black', title = 'number of sales (in million)')
 
-
     # legend within the graph (not beside)
-    fig.update_layout(legend=dict(
-    title = '  Area',
-    yanchor="top",
-    y=0.99,
-    xanchor="right",
-    x=0.99
+    fig.update_layout(plot_bgcolor='white',paper_bgcolor='white',
+                      legend=dict(
+                          title = '  Area',
+                          yanchor="top",
+                          y=0.99,
+                          xanchor="right",
+                          x=0.99
 ))
     return fig
 
 def line_diagram(main_filter, dataset):
     df_l = dataset.groupby(['Year', main_filter], as_index=False)['Global'].sum()
+    dfl_unique = df_l['Year'].unique()
 
     line_fig = px.line(df_l, x='Year', y='Global', color=main_filter, color_discrete_sequence= ['#006276', '#015666', '#1a889d', '#4da3b3', '#80bdc9', '#b3d7de', '#cce5e9',  '#2b6b51', '#317a5c','#378a68','#50a381', '#77b89d', '#9eccb9' ])
     line_fig.update_layout(plot_bgcolor='white',paper_bgcolor='white')
     line_fig.update_xaxes( showline=True, linewidth=1, linecolor='black', range=[1980, 2020])
-    if len(df_l['Year'].unique()) == 1:
-        star_year = df_l['Year'].unique()[0]
+    if len(dfl_unique ) == 1:
+        star_year = dfl_unique[0]
         line_fig.add_annotation(
             x=star_year,
             y=df_l[df_l['Year'] == star_year]['Global'].values[0],
@@ -455,7 +453,6 @@ def update_charts(main_filter, platform, genre, console, company, publisher, yea
                gauge_chart(main_filter, dff, 'Japan', dft),\
                gauge_chart(main_filter, dff, 'Others', dft),\
                dash.no_update)
-
 
 
 # RUN THE APP
