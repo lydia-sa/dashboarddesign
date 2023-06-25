@@ -95,7 +95,7 @@ def gauge_chart(main_filter, dataset, region, data_time):
                }
     ))
     fig_gaug.update_layout(
-        margin=dict(l=55, r=55, t=0, b=0),
+        margin=dict(l=55, r=55, t=1, b=0),
         height=140
     )
     return fig_gaug
@@ -109,7 +109,7 @@ alert = dbc.Alert('Please choose another period of time to avoid further disappo
 # IMPORT DATA
 #-------------------------------------------------------------------
 # import clean data
-df = pd.read_csv("D:/Studium/FS 2023/Dashboard Design/Aufgaben/dataframe_videogames_clean.csv")
+df = pd.read_csv('dataframe_videogames_clean.csv')
 
 # make a list for the list
 df_liste = df[['Name', 'Platform', 'Genre', 'Global']]
@@ -127,8 +127,8 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY],
 #--------------------------------------------------------------------
 app.layout = html.Div([
     dcc.Loading(
-        id="loading",
-        type="circle",
+        id='loading',
+        type='circle',
         children=[
             dbc.Container([
                 dbc.Row([
@@ -204,7 +204,7 @@ app.layout = html.Div([
                                         updatemode='mouseup',
                                         ),
                     width={'size': 6,'offset':4},
-                    className='mt-3', style={'margin-left': '440px', 'background-color': '#bad4f5', 'border-radius': '8px', 'box-shadow': '0px 0px 4px rgba(0, 0, 0, 0.2)'})),
+                    className='mt-1', style={'margin-left': '440px', 'background-color': '#bad4f5', 'border-radius': '8px', 'box-shadow': '0px 0px 4px rgba(0, 0, 0, 0.2)'})),
                 html.Div(style={'height': '5px'}),
 
                 dbc.Row(html.Div(id='wrong_time_alert', children=[])),
