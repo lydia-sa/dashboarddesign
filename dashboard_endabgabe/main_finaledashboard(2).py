@@ -36,6 +36,7 @@ def stacked_bar_chart_plotly(main_filter, dataset):
 
     # legend within the graph (not beside)
     fig.update_layout(plot_bgcolor='white',paper_bgcolor='white',
+                      yaxis=dict(showgrid=True, gridcolor='#d9dbda', gridwidth=0.5, griddash='dot'),
                       legend=dict(
                           title='Area:',
                           orientation="h",
@@ -63,7 +64,6 @@ def line_diagram(main_filter, dataset):
             font=dict(size=20),
         )
     line_fig.update_yaxes(showline=True, linewidth=1, linecolor='black')
-    line_fig.update_yaxes(ticks="outside")
     line_fig.update_layout(
         yaxis=dict(showgrid=True, gridcolor='#d9dbda', gridwidth=0.5, griddash='dot')
     )
@@ -139,7 +139,7 @@ app.layout = html.Div([
                         style={'font-family': 'Arial', 'font-size': '14px', 'color': '#006276',  'margin-bottom':'13px'}),
                         width={'size': 7}),],
                     className='mt-1 d-flex align-items-end',
-                    style={'background-color': '#A1E0F9', 'height': '60px', 'border-radius': '2px'}),
+                    style={'background-color': '#B7DEEF', 'height': '60px', 'border-radius': '2px'}),
                 dbc.Row([
                     dbc.Col(dcc.Dropdown(id='dd_platform',
                                          options=sorted([{'label': i, 'value': i} for i in df['Platform'].unique()], key=lambda x: x['label']),
@@ -189,7 +189,7 @@ app.layout = html.Div([
                             width={'size': 2},
                             style={'font-size': '14px'}
                             ),
-                    ], className='mt-2 d-flex align-items-center', style={'background-color': '#A1E0F9', 'height': '50px', }
+                    ], className='mt-2 d-flex align-items-center', style={'background-color': '#B7DEEF', 'height': '50px', }
                 ),
                 dbc.Row(
                     dbc.Col(dcc.RangeSlider(id='slider_year',
@@ -212,7 +212,7 @@ app.layout = html.Div([
                 dbc.Row([
                     dbc.Col([
                         dbc.Row(html.H5('Sales Ranking',
-                                    className='text-left d-flex align-items-center', style={'background-color': '#A1E0F9', 'font-weight': 'bold', 'border-radius': '5px', 'height': '40px', 'weight': 'bold', 'color': '#006276'})),
+                                    className='text-left d-flex align-items-center', style={'background-color': '#B7DEEF', 'font-weight': 'bold', 'border-radius': '5px', 'height': '40px', 'weight': 'bold', 'color': '#006276'})),
                         dbc.Row(dash_table.DataTable(
                             id='datatable_1',
                             columns=[{'name': i, 'id': i, 'deletable': False, 'selectable': True} for i in df_liste.columns],
@@ -250,7 +250,7 @@ app.layout = html.Div([
                             inline=True
                         ),
                             width={'size': 8, 'offset': 2},
-                            style={'height': '28px', 'background-color': '#A1E0F9', 'border-radius': '5px',
+                            style={'height': '28px', 'background-color': '#B7DEEF', 'border-radius': '5px',
                                    'display': 'flex', 'justify-content': 'center'}
                         ),
                         ),
@@ -264,7 +264,7 @@ app.layout = html.Div([
                     ),
                     dbc.Col([
                         dbc.Row(html.H5('Market Share by Region',
-                                    className='text-left d-flex align-items-center', style={'background-color': '#A1E0F9', 'font-weight': 'bold', 'border-radius': '5px', 'height': '40px', 'color': '#006276'})),
+                                    className='text-left d-flex align-items-center', style={'background-color': '#B7DEEF', 'font-weight': 'bold', 'border-radius': '5px', 'height': '40px', 'color': '#006276'})),
                         dbc.Row(html.H6(id='share_global', style={'text-align': 'center', 'font-size': '14px',}), className='mt-1 d-flex align-items-end',),
                         dbc.Col([
 
