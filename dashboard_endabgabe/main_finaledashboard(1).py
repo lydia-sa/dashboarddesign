@@ -472,4 +472,4 @@ def update_charts(main_filter, platform, genre, console, company, publisher, yea
 # RUN THE APP
 #--------------------------------------------------------------------
 if __name__=='__main__':
-    app.run_server(debug=True, port=8000)
+    app.run_server(debug=True, port=8010)
