@@ -104,7 +104,7 @@ alert = dbc.Alert('Please choose another period of time to avoid further disappo
 # IMPORT DATA
 #-------------------------------------------------------------------
 # import clean data
-df = pd.read_csv("dataframe_videogames_clean.csv")
+df = pd.read_csv("../dataframe_videogames_clean.csv")
 
 # make a list for the list
 df_liste = df[['Name', 'Platform', 'Genre', 'Global']]
