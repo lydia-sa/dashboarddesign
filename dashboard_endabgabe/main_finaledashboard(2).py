@@ -131,11 +131,11 @@ app.layout = html.Div([
         children=[
             dbc.Container([
                 dbc.Row([
-                    dbc.Col(html.H3('Video Games Sales Analysis', className='text-left d-flex align-items-center',
+                    dbc.Col(html.H3('Video Games Sales Analysis',
                         style={'font-family': 'Arial', 'font-size': '34px', 'font-weight': 'bold', 'color': '#006276'}),
                         width={'size': 4},
                         className='mt-1 d-flex align-items-end',),
-                    dbc.Col(html.H3('For a deeper understanding of the video game industry and the factors that contribute to the success of video games sales', className='text-left d-flex align-items-center',
+                    dbc.Col(html.H3('For a deeper understanding of the video game industry and the factors that contribute to video game sales success', className='text-left d-flex align-items-center',
                         style={'font-family': 'Arial', 'font-size': '14px', 'color': '#006276',  'margin-bottom':'13px'}),
                         width={'size': 7}),],
                     className='mt-1 d-flex align-items-end',
@@ -482,4 +482,4 @@ def update_charts(main_filter, platform, genre, console, company, publisher, yea
 # RUN THE APP
 #--------------------------------------------------------------------
 if __name__=='__main__':
-    app.run_server(debug=True, port=8020)
+    app.run_server(debug=False, port=8020)
